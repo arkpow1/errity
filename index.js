@@ -5,14 +5,14 @@ function errity(cb, onError) {
     try {
       return await fn.apply(ctx, args);
     } catch (err) {
-      onError?.(err);
+      onError?.(err) || this?.defaultErrorCb?.();
     }
   };
   const syncApply = (fn, ctx, args) => {
     try {
       return fn.apply(ctx, args);
     } catch (err) {
-      onError?.(err);
+      onError?.(err) || this?.defaultErrorCb?.();
     }
   };
 
@@ -21,4 +21,11 @@ function errity(cb, onError) {
   });
 }
 
-module.exports = errity;
+class Errity {
+  constructor({ defaultErrorCb }) {
+    this.defaultErrorCb = defaultErrorCb;
+    this.errity = errity.bind(this);
+  }
+}
+
+module.exports = { errity, Errity };
