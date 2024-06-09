@@ -1,11 +1,14 @@
 {
   "name": "errity",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Error wrapper for JavaScript functions",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "Alexander Anikin",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }

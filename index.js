@@ -5,14 +5,14 @@ function errity(cb, onError) {
     try {
       return await fn.apply(ctx, args);
     } catch (err) {
-      onError ? onError?.(err) : this?.defaultErrorCb?.();
+      onError ? onError?.(err) : this?.defaultErrorCb?.(err);
     }
   };
   const syncApply = (fn, ctx, args) => {
     try {
       return fn.apply(ctx, args);
     } catch (err) {
-      onError ? onError?.(err) : this?.defaultErrorCb?.();
+      onError ? onError?.(err) : this?.defaultErrorCb?.(err);
     }
   };
 
