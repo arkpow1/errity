@@ -93,17 +93,95 @@ describe("Sync functions tests:", () => {
 
     const errity = createErrity((err) => errorData.push(err.message));
 
-    const testSync = errity((value) => {
-      throw new Error(value + " error");
+    const testSync = errity((value, hasError) => {
+      if (hasError) {
+        throw new Error(value + " error");
+      }
     });
 
     for (let i = 0; i < LOOPS; i++) {
-      testSync(i);
+      testSync(i, i % 2 === 0);
     }
 
-    expect(errorData.length).toBe(LOOPS);
+    expect(errorData.length).toBe(LOOPS / 2);
     for (let i = 0; i < LOOPS / 2; i++) {
-      expect(errorData[i]).toBe(i + " error");
+      expect(errorData[i]).toBe(2 * i + " error");
+    }
+  });
+
+  // Тест кастомного обработчика ошибок с повторными попытками
+  test("Custom error cb with retries", () => {
+    let errorCount = 0;
+
+    const testSync = createErrity(() => errorCount++)(
+      (value, hasError) => {
+        if (hasError) {
+          throw new Error(value + " error");
+        }
+      },
+      { retryCount: 3 }
+    );
+
+    for (let i = 0; i < LOOPS; i++) {
+      testSync(i, i % 2 === 0);
+    }
+
+    expect(errorCount).toBe(LOOPS / 2);
+  });
+
+  // Тест дефолтного обработчика ошибок с повторными попытками
+  test("Default error cb with retries", () => {
+    let errorCount = 0;
+
+    const { errity } = new Errity({
+      defaultErrorCb: () => errorCount++,
+    });
+
+    const testSync = errity(
+      (value, hasError) => {
+        if (hasError) {
+          throw new Error(value + " error");
+        }
+      },
+      { retryCount: 3 }
+    );
+
+    for (let i = 0; i < LOOPS; i++) {
+      testSync(i, i % 2 === 0);
+    }
+
+    expect(errorCount).toBe(LOOPS / 2);
+  });
+
+  // Тест обработки различных типов ошибок
+  test("Handling different error types", () => {
+    let errorCount = 0;
+    const errorMessages = [];
+
+    const testSync = createErrity((err) => {
+      errorCount++;
+      errorMessages.push(err.message);
+    })((value, hasError) => {
+      if (hasError) {
+        if (value % 2 === 0) {
+          throw new Error(value + " error");
+        } else {
+          throw value + " error";
+        }
+      }
+    });
+
+    for (let i = 0; i < LOOPS; i++) {
+      testSync(i, i % 2 === 0);
+    }
+
+    expect(errorCount).toBe(LOOPS / 2);
+    for (let i = 0; i < LOOPS / 2; i++) {
+      if ((2 * i) % 2 === 0) {
+        expect(errorMessages[i]).toBe(2 * i + " error");
+      } else {
+        expect(errorMessages[i]).toBe("2" + i + " error");
+      }
     }
   });
 });
@@ -156,5 +234,71 @@ describe("Additional tests for Errity", () => {
     await Promise.all(promises);
 
     expect(errorCount).toBe(LOOPS / 2);
+  });
+
+  // Тест асинхронных функций с кастомным обработчиком ошибок и повторными попытками
+  test("Async functions with custom error cb and retries", async () => {
+    let retryErrorCount = 0;
+    let errorCount = 0;
+    const RETRY_COUNT = 500;
+
+    const testAsync = errity(
+      async () => {
+        throw new Error(value + " async error");
+      },
+      {
+        retryCount: RETRY_COUNT,
+        onRetryError: () => retryErrorCount++,
+        onError: () => errorCount++,
+      }
+    );
+
+    await testAsync();
+
+    expect(errorCount).toBe(1);
+    expect(retryErrorCount).toBe(499);
+  });
+
+  // Тест передачи данных из асинхронной функции в обработчик ошибок
+  test("Async error data should be passed to error callback", async () => {
+    const errorData = [];
+    const errity = createErrity((err) => errorData.push(err.message));
+    
+    const testAsync = errity(async (value, hasError) => {
+      if (hasError) {
+        throw new Error(value + " async error");
+      }
+    });
+
+    const promises = [];
+    for (let i = 0; i < LOOPS; i++) {
+      promises.push(testAsync(i, i % 2 === 0));
+    }
+    await Promise.all(promises);
+
+    expect(errorData.length).toBe(LOOPS / 2);
+    for (let i = 0; i < LOOPS / 2; i++) {
+      expect(errorData[i]).toBe(2 * i + " async error");
+    }
+  });
+
+  // Тест поведения при ошибках в асинхронных функциях без повторных попыток
+  test("Async functions without retries", async () => {
+    let errorCount = 0;
+
+    const testAsync = errity(
+      async () => {
+        throw new Error("");
+      },
+      { onError: () => errorCount++ }
+    );
+
+    const promises = [];
+    for (let i = 0; i < LOOPS; i++) {
+      promises.push(testAsync());
+    }
+    await Promise.all(promises);
+
+    expect(errorCount).toBe(LOOPS);
   });
 });
