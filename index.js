@@ -6,7 +6,7 @@ const syncSleep = (ms) => {
 const asyncSleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 function errity(cb, secondArg) {
-  // Второй аргумент может быть как функцией onError, так и конфигом
+  // Второй аргумент может быть как функцией onError, так и конфигом.
   const isFunction = typeof secondArg === "function";
   const isConfig = typeof secondArg === "object";
   const isAsync = cb.constructor.name == "AsyncFunction";
