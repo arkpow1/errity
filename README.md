@@ -7,14 +7,11 @@ Errity lets you catch errors without using try-catch blocks, making your code fl
   - [More](#more)
 - [Available configuration properties and methods](#available-configuration-properties-and-methods)
 - [Examples](#examples)
-
-[![My Skills](https://skillicons.dev/icons?i=npm)](https://skillicons.dev)<br>
-[Errity on npm](https://www.npmjs.com/package/errity)
-
+- [Links](#links)
 
 ## How to use?
 ### Simple case
-1. Импортируйте функцию или класс Errity
+1. Import the errity function
 ```javascript
 import { errity } from errity;
 // or
@@ -22,13 +19,13 @@ const { errity } = require('errity');
 // or
 const { errity } = new Errity();
 ```
-2. Оберните вашу функцию в errity
+2. Wrap your function with errity
 ```javascript
 const brokenFunction = errity(() => {
   // your code
 });
 ```
-3. Добавьте вторым аргументом, функцию, которая будет вызываться при ошибке
+3. Add a second argument, a function that will be called on error
 ```javascript
 const brokenFunction = errity(
   () => {
@@ -110,4 +107,7 @@ const getData = errity(
   }
 );
 ```
+
+## Links
+[GitHub](https://github.com/arkpow1/errity), [npm](https://www.npmjs.com/package/errity)    
 
