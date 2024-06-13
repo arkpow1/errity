@@ -1,4 +1,4 @@
-# Errity - Simple JavaScript Error Wrapper
+# Errity - Elegant Error Handling in JavaScript Functions
 
 Errity lets you catch errors without using try-catch blocks, making your code flatter and more readable. With built-in support for default error handlers and retry mechanisms, Errity provides a solution for error management in both synchronous and asynchronous functions.
 ## Navigation
