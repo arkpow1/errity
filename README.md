@@ -2,14 +2,20 @@
 
 Errity lets you catch errors without using try-catch blocks, making your code flatter and more readable. With built-in support for default error handlers and retry mechanisms, Errity provides a solution for error management in both synchronous and asynchronous functions.
 ## Navigation
-- [How to use?](#how-to-use)
+- [Installation](#installation)
+- [Usage](#usage)
   - [Simple case](#simple-case)
   - [More](#more)
 - [Available configuration properties and methods](#available-configuration-properties-and-methods)
 - [Examples](#examples)
 - [Links](#links)
 
-## How to use?
+## Installation
+```shell
+npm i errity
+```
+
+## Usage
 ### Simple case
 1. Import the errity function
 ```javascript
@@ -17,6 +23,7 @@ import { errity } from errity;
 // or
 const { errity } = require('errity');
 // or
+import { Errity } from 'errity'; // or require
 const { errity } = new Errity();
 ```
 2. Wrap your function with errity
@@ -35,7 +42,7 @@ const brokenFunction = errity(
 );
 ```
 ### More
-You can set a default error handler which will be triggered for all wrapped functions that don't have their own error handler
+You can set a default error handler which will be triggered for all wrapped functions that don't have their own error handler:
 ```javascript
 const { errity } = new Errity({
   defaultErrorCb: (err) => console.log(err.message),
@@ -46,7 +53,7 @@ const brokenFunction = errity(() => {
 });
 ```
 
-Second argument can be function or object
+Second argument can be function or object:
 ```javascript
 const brokenFunction = errity(() => {
   // your code
@@ -54,11 +61,21 @@ const brokenFunction = errity(() => {
   onError: (err) => console.log(err.message),
 });
 ```
+
+You can get error logs using the following code:
+```javascript
+const { errity, logs } = new Errity({
+  logger: true,
+});
+console.log(logs) // array of error logs
+```
+
 ## Available configuration properties and methods
-- retryCount - the number of retry attempts when an error occurs (works with both synchronous and asynchronous functions)
-- retryDelay - the delay between retry attempts when an error occurs
-- onRetryError - a function triggered on retry errors (if retryCount is 5, this function will be called 4 times)
-- onError - a function triggered on error (if retryCount is 5, this function will be called once after 4 onRetryError calls)
+- **retryCount** - the number of retry attempts when an error occurs (works with both synchronous and asynchronous functions)
+- **retryDelay** - the delay between retry attempts when an error occurs
+- **onRetryError** - a function triggered on retry errors (if retryCount is 5, this function will be called 4 times)
+- **onError** - a function triggered on error (if retryCount is 5, this function will be called once after 4 onRetryError calls)
+- **logger** - a property responsible for error logging
 
 ## Examples
 
