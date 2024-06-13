@@ -263,7 +263,7 @@ describe("Additional tests for Errity", () => {
   test("Async error data should be passed to error callback", async () => {
     const errorData = [];
     const errity = createErrity((err) => errorData.push(err.message));
-    
+
     const testAsync = errity(async (value, hasError) => {
       if (hasError) {
         throw new Error(value + " async error");
@@ -300,5 +300,26 @@ describe("Additional tests for Errity", () => {
     await Promise.all(promises);
 
     expect(errorCount).toBe(LOOPS);
+  });
+
+  test("Check logger implement", () => {
+    const { logs } = new Errity({ logger: true });
+    expect(logs).toEqual([]);
+  });
+
+  test("Check undefined logger", () => {
+    const { logs } = new Errity();
+    expect(logs).toBeUndefined();
+  });
+
+  test("Check five errors in logs", () => {
+    const { logs, errity } = new Errity({ logger: true });
+    for (let i = 0; i < 5; i++) {
+      errity(() => {
+        throw Error();
+      })();
+    }
+
+    expect(logs).toHaveLength(5);
   });
 });

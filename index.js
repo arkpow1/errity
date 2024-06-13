@@ -9,7 +9,7 @@ function errity(cb, secondArg) {
   // Второй аргумент может быть как функцией onError, так и конфигом.
   const isFunction = typeof secondArg === "function";
   const isConfig = typeof secondArg === "object";
-  const isAsync = cb.constructor.name == "AsyncFunction";
+  const isAsync = cb.constructor.name === "AsyncFunction";
 
   const config = isConfig ? secondArg : {};
   const onErrorFunction = isFunction ? secondArg : undefined;
@@ -29,6 +29,9 @@ function errity(cb, secondArg) {
       try {
         return await fn.apply(ctx, args);
       } catch (error) {
+        if (this.logs) {
+          this.logs.push(error);
+        }
         if (i === retryCount - 1) {
           onError ? onError?.(error) : this?.defaultErrorCb?.(error);
         } else {
@@ -47,6 +50,9 @@ function errity(cb, secondArg) {
       try {
         return fn.apply(ctx, args);
       } catch (error) {
+        if (this.logs) {
+          this.logs.push(error);
+        }
         if (i === retryCount - 1) {
           onError ? onError?.(error) : this?.defaultErrorCb?.(error);
         } else {
@@ -62,9 +68,15 @@ function errity(cb, secondArg) {
 }
 
 class Errity {
-  constructor({ defaultErrorCb }) {
+  logs;
+  defaultErrorCb;
+
+  constructor({ defaultErrorCb, logger } = {}) {
     this.defaultErrorCb = defaultErrorCb;
     this.errity = errity.bind(this);
+    if (logger) {
+      this.logs = [];
+    }
   }
 }
 
