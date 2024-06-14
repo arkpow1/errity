@@ -6,7 +6,7 @@ const syncSleep = (ms) => {
 const asyncSleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 function errity(cb, secondArg) {
-  // Второй аргумент может быть как функцией onError, так и конфигом.
+  // The second argument can be onError function or a config
   const isFunction = typeof secondArg === "function";
   const isConfig = typeof secondArg === "object";
   const isAsync = cb.constructor.name === "AsyncFunction";
@@ -21,6 +21,11 @@ function errity(cb, secondArg) {
     retryDelay = 0,
   } = config;
 
+  const onLastError = (error) =>
+    onError ? onError?.(error) : this?.defaultErrorCb?.(error);
+
+  const pushToLogs = (error) => this?.logs.push(error);
+
   const asyncApply = async (fn, ctx, args) => {
     for (let i = 0; i < retryCount; i++) {
       if (retryDelay > 0 && i > 0) {
@@ -29,11 +34,11 @@ function errity(cb, secondArg) {
       try {
         return await fn.apply(ctx, args);
       } catch (error) {
-        if (this.logs) {
-          this.logs.push(error);
+        if (this?.logs) {
+          pushToLogs(error);
         }
         if (i === retryCount - 1) {
-          onError ? onError?.(error) : this?.defaultErrorCb?.(error);
+          onLastError(error);
         } else {
           onRetryError?.(error);
         }
@@ -50,11 +55,11 @@ function errity(cb, secondArg) {
       try {
         return fn.apply(ctx, args);
       } catch (error) {
-        if (this.logs) {
-          this.logs.push(error);
+        if (this?.logs) {
+          pushToLogs(error);
         }
         if (i === retryCount - 1) {
-          onError ? onError?.(error) : this?.defaultErrorCb?.(error);
+          onLastError(error);
         } else {
           onRetryError?.(error);
         }
